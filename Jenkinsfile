@@ -9,12 +9,14 @@ stage 'auto-test'
 
 // TODO: deploy, test
 
-stage 'prod-deploy'
+// Only 1 build can deploy to the servers at a time
+stage concurrency: 1, name: 'prod-deploy'
 
 // Deploy what we can in parallel
 parallel(rPiDeploy: {
 	doRPiCWIDeploy()
 })
+
 
 
 
