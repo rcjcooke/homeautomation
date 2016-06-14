@@ -1,36 +1,50 @@
 stage 'build'
 
-// Raspberry Pi Cam Web Interface builder
-node 'rasbpi' {
-	// This has to be done on the Rasberry Pi build slave
-	git url: 'https://github.com/silvanmelchior/RPi_Cam_Web_Interface.git'
-	git url: 'https://github.com/silvanmelchior/RPi_Cam_Web_Interface.git'
-	
-	def newRPiCWIBuild = docker.build "rcjcooke/RPi_CWI:${env.BUILD_TAG}"
-	
-	// TODO: Bundle release notes + update Wiki
-	
-	newRPiCWIBuild.push(...) // Store in docker artefact repo
-	
-}
-
+// Build what we can in parallel to optimise build time
+parallel(rPiCWIBuild: {
+	doRPiCWIBuild()
+})
 
 stage 'auto-test'
 
+// TODO: deploy, test
 
 stage 'prod-deploy'
 
+// Deploy what we can in parallel
+parallel(rPiDeploy: {
+	doRPiCWIDeploy()
+})
 
 
 
 
 
-node {
-    checkout scm
-    servers = load 'servers.groovy'
-    mvn '-o clean package'
-    dir('target') {stash name: 'war', includes: 'x.war'}
+/*****************/
+/* FUNCTION DEFS */
+/*****************/
+
+// Raspberry Pi Cam Web Interface builder
+def doRPiCWIBuild() {
+	node 'rasbpi' {
+		// Note: This has to be done on the Rasberry Pi build slave
+		
+		// Check out docker image build script and code to add to it
+		git url: 'https://github.com/rcjcooke/ha_rpi_cwi.git'
+		git url: 'https://github.com/silvanmelchior/RPi_Cam_Web_Interface.git'
+		
+		// Build the docker image
+		def newRPiCWIBuild = docker.build "rcjcooke/ha-rpi-cwi:${env.BUILD_TAG}"
+		
+		// TODO: Bundle release notes + update Wiki
+		
+		// Publish the image to the docker artefact repository
+		newRPiCWIBuild.push "rcjcooke/ha-rpi-cwi"
+	}
 }
 
-
-    
+def doRPiCWIDeploy() {
+	// TODO: how do I know what servers there are and how do I connect to them to do this?
+	
+	docker run -d -p 80:80 rcjcooke/ha-rip-cwi:latest 
+}
