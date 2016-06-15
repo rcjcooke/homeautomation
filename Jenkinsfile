@@ -57,7 +57,7 @@ def doRPiCWIBuild() {
 
 def doRPiCWIDeploy() {
 	// TODO: Pull these out to config management on a per server basis?
-	withEnv(['DOCKER_HOST=${garageDockerHost}','DOCKER_TLS_VERIFY=0']} {
+	withEnv(['DOCKER_HOST=${garageDockerHost}','DOCKER_TLS_VERIFY=0']) {
 		sh 'docker run -d -p 80:80 rcjcooke/ha-rip-cwi:${env.BUILD_TAG}'
 	}
 	
