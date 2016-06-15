@@ -1,3 +1,13 @@
+// Define some servers and config - TODO: pull these out to something in future (Chef?)
+
+// TODO: Update this when I install Docker Engine on Rasbpi
+def garageDockerHost = "tcp://192.168.99.101:2376" 
+
+
+/************/
+/* Pipeline */
+/************/
+
 stage 'build'
 
 // Build what we can in parallel to optimise build time
@@ -10,7 +20,7 @@ stage 'auto-test'
 // TODO: deploy, test
 
 // Only 1 build can deploy to the servers at a time
-stage concurrency: 1, name: 'prod-deploy'
+stage 'prod-deploy', concurrency: 1
 
 // Deploy what we can in parallel
 parallel(rPiDeploy: {
@@ -46,7 +56,9 @@ def doRPiCWIBuild() {
 }
 
 def doRPiCWIDeploy() {
-	// TODO: how do I know what servers there are and how do I connect to them to do this?
+	// TODO: Pull these out to config management on a per server basis?
+	withEnv(['DOCKER_HOST=${garageDockerHost}','DOCKER_TLS_VERIFY=0']} {
+		sh 'docker run -d -p 80:80 rcjcooke/ha-rip-cwi:${env.BUILD_TAG}'
+	}
 	
-	docker run -d -p 80:80 rcjcooke/ha-rip-cwi:latest 
 }
