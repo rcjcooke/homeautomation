@@ -38,7 +38,7 @@ parallel(rPiDeploy: {
 
 // Raspberry Pi Cam Web Interface builder
 def doRPiCWIBuild() {
-	node 'rasbpi' {
+	node('rasbpi') {
 		// Note: This has to be done on the Rasberry Pi build slave
 		
 		// Check out docker image build script and code to add to it
@@ -56,9 +56,10 @@ def doRPiCWIBuild() {
 }
 
 def doRPiCWIDeploy() {
-	// TODO: Pull these out to config management on a per server basis?
-	withEnv(['DOCKER_HOST=${garageDockerHost}','DOCKER_TLS_VERIFY=0']) {
-		sh 'docker run -d -p 80:80 rcjcooke/ha-rip-cwi:${env.BUILD_TAG}'
+	node('rasbpi') {
+		// TODO: Pull these out to config management on a per server basis?
+		withEnv(['DOCKER_HOST=${garageDockerHost}','DOCKER_TLS_VERIFY=0']) {
+			sh 'docker run -d -p 80:80 rcjcooke/ha-rip-cwi:${env.BUILD_TAG}'
+		}
 	}
-	
 }
