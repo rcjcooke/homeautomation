@@ -1,7 +1,7 @@
 // Define some servers and config - TODO: pull these out to something in future (Chef?)
 
 // TODO: Update this when I install Docker Engine on Rasbpi
-def garageDockerHost = "tcp://192.168.99.101:2376" 
+def garageDockerHost = "tcp://garagepi.local:2376" 
 
 
 /************/
