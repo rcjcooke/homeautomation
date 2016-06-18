@@ -42,7 +42,7 @@ def doRPiCWIBuild() {
 		// Note: This has to be done on the Rasberry Pi build slave
 		
 		// Check out docker image build script and code to add to it
-		git credentialsId: 'f3266c33-5ce6-45b8-8fdc-48d38dbfa5d6', url: 'https://github.com/rcjcooke/ha_rpi_cwi.git'
+		git credentialsId: 'f3266c33-5ce6-45b8-8fdc-48d38dbfa5d6', url: 'https://github.com/rcjcooke/ha-rpi-cwi.git'
 		git url: 'https://github.com/silvanmelchior/RPi_Cam_Web_Interface.git'
 		
 		// Build the docker image
