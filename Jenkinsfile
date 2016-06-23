@@ -1,7 +1,7 @@
 // Define some servers and config - TODO: pull these out to something in future (Chef?)
 
 // TODO: Update this when I install Docker Engine on Rasbpi
-def garageDockerHost = "tcp://garagepi.local:2376" 
+def garageDockerHost = "tcp://garagepi.local:2376"
 
 
 /************/
@@ -40,7 +40,7 @@ parallel(rPiDeploy: {
 def doRPiCWIBuild() {
 	node('rasbpi') {
 		// Note: This has to be done on the Rasberry Pi build slave
-		
+
 		// Check out docker image build script and code to add to it
 		dir('ha-rpi-cwi') {
 			git credentialsId: 'f3266c33-5ce6-45b8-8fdc-48d38dbfa5d6', url: 'https://github.com/rcjcooke/ha-rpi-cwi.git'
@@ -49,13 +49,15 @@ def doRPiCWIBuild() {
 			git url: 'https://github.com/silvanmelchior/RPi_Cam_Web_Interface.git'
 		}
 		
-		// Build the docker image
-		def newRPiCWIBuild = docker.build "rcjcooke/ha-rpi-cwi:${env.BUILD_TAG}"
-		
 		// TODO: Bundle release notes + update Wiki
-		
-		// Publish the image to the docker artefact repository
-		newRPiCWIBuild.push "rcjcooke/ha-rpi-cwi"
+
+		dir('ha-rpi-cwi') {
+			// Build the docker image
+			def newRPiCWIBuild = docker.build "rcjcooke/ha-rpi-cwi:${env.BUILD_TAG}"
+			// Publish the image to the docker artefact repository
+			newRPiCWIBuild.push "rcjcooke/ha-rpi-cwi"
+		}
+
 	}
 }
 
