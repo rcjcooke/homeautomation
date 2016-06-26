@@ -1,8 +1,6 @@
 // Define some servers and config - TODO: pull these out to something in future (Chef?)
-
-// TODO: Update this when I install Docker Engine on Rasbpi
-def garageDockerHost = "tcp://garagepi.local:2376"
-def rPiCWIImage = null
+String garageDockerHost = 'tcp://garagepi.local:2376'
+Object rPiCWIImage = null
 
 /************/
 /* Pipeline */
@@ -62,7 +60,7 @@ def doRPiCWIBuild() {
 	}
 }
 
-def doRPiCWIDeploy = { dockerImage ->
+def doRPiCWIDeploy(Object dockerImage) {
 	node('rasbpi') {
 		// TODO: Pull these out to config management on a per server basis?
 		withEnv(["DOCKER_HOST=${garageDockerHost}",'DOCKER_TLS_VERIFY=0']) {
