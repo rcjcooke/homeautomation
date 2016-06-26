@@ -55,7 +55,7 @@ def doRPiCWIBuild() {
 			// Build the docker image
 			def newRPiCWIBuild = docker.build "rcjcooke/ha-rpi-cwi:${env.BUILD_TAG}"
 			// Publish the image to the docker artefact repository
-			newRPiCWIBuild.push "rcjcooke/ha-rpi-cwi"
+			newRPiCWIBuild.push 'latest'
 		}
 
 	}
