@@ -52,10 +52,14 @@ def doRPiCWIBuild() {
 		// TODO: Bundle release notes + update Wiki
 
 		dir('ha-rpi-cwi') {
-			// Build the docker image
-			def newRPiCWIBuild = docker.build "rcjcooke/ha-rpi-cwi:${env.BUILD_TAG}"
-			// Publish the image to the docker artefact repository
-			newRPiCWIBuild.push 'latest'
+			withCredentials([[$class: 'UsernamePasswordMultiBinding', credentialsId: 'docker-hub-login', passwordVariable: 'DOCKER_HUB_PASS', usernameVariable: 'DOCKER_HUB_USER']]) {
+				// Build the docker image
+				def newRPiCWIBuild = docker.build "rcjcooke/ha-rpi-cwi:${env.BUILD_TAG}"
+				// Login to the Docker Hub
+				sh 'docker login -u $DOCKER_HUB_USER -p $DOCKER_HUB_PASS'
+				// Publish the image to the docker artefact repository
+				newRPiCWIBuild.push 'latest'
+			}
 		}
 
 	}
