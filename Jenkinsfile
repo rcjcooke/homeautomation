@@ -2,7 +2,7 @@
 
 // TODO: Update this when I install Docker Engine on Rasbpi
 def garageDockerHost = "tcp://garagepi.local:2376"
-
+def rPiCWIImage = null
 
 /************/
 /* Pipeline */
@@ -24,13 +24,8 @@ stage name: 'prod-deploy', concurrency: 1
 
 // Deploy what we can in parallel
 parallel(rPiDeploy: {
-	doRPiCWIDeploy()
+	doRPiCWIDeploy(rPiCWIImage)
 })
-
-
-
-
-
 
 /*****************/
 /* FUNCTION DEFS */
@@ -61,16 +56,17 @@ def doRPiCWIBuild() {
 				// Publish the image to the docker artefact repository
 				newRPiCWIBuild.push 'latest'
 			}
+			// Keep the image so we can deploy it later
+			rPiCWIImage = newRPiCWIBuild
 		}
-
 	}
 }
 
-def doRPiCWIDeploy() {
+def doRPiCWIDeploy = { dockerImage ->
 	node('rasbpi') {
 		// TODO: Pull these out to config management on a per server basis?
-		withEnv(['DOCKER_HOST=${garageDockerHost}','DOCKER_TLS_VERIFY=0']) {
-			sh 'docker run -d -p 80:80 rcjcooke/ha-rpi-cwi:${env.BUILD_TAG}'
+		withEnv(["DOCKER_HOST=${garageDockerHost}",'DOCKER_TLS_VERIFY=0']) {
+			dockerImage.run('-d -p 80:80')
 		}
 	}
 }
