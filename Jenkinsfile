@@ -1,5 +1,5 @@
 // Define some servers and config - TODO: pull these out to something in future (Chef?)
-String garageDockerHost = 'tcp://garagepi.local:2376'
+def String garageDockerHost = 'tcp://garagepi.local:2376'
 Object rPiCWIImage = null
 
 /************/
@@ -22,7 +22,7 @@ stage name: 'prod-deploy', concurrency: 1
 
 // Deploy what we can in parallel
 parallel(rPiDeploy: {
-	doRPiCWIDeploy(rPiCWIImage)
+	doRPiCWIDeploy(rPiCWIImage, garageDockerHost)
 })
 
 /*****************/
@@ -60,10 +60,10 @@ def doRPiCWIBuild() {
 	}
 }
 
-def doRPiCWIDeploy(Object dockerImage) {
+def doRPiCWIDeploy(Object dockerImage, String deployHost) {
 	node('rasbpi') {
 		// TODO: Pull these out to config management on a per server basis?
-		withEnv(["DOCKER_HOST=${garageDockerHost}",'DOCKER_TLS_VERIFY=0']) {
+		withEnv(["DOCKER_HOST=${deployHost}",'DOCKER_TLS_VERIFY=0']) {
 			dockerImage.run('-d -p 80:80')
 		}
 	}
