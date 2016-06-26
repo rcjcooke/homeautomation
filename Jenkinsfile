@@ -1,5 +1,5 @@
 // Define some servers and config - TODO: pull these out to something in future (Chef?)
-def String garageDockerHost = 'tcp://garagepi.local:2376'
+String garageDockerHost = 'tcp://garagepi.local:2376'
 Object rPiCWIImage = null
 
 /************/
@@ -10,7 +10,7 @@ stage 'build'
 
 // Build what we can in parallel to optimise build time
 parallel(rPiCWIBuild: {
-	doRPiCWIBuild()
+	rPiCWIImage = doRPiCWIBuild()
 })
 
 stage 'auto-test'
@@ -54,8 +54,8 @@ def doRPiCWIBuild() {
 				// Publish the image to the docker artefact repository
 				newRPiCWIBuild.push 'latest'
 			}
-			// Keep the image so we can deploy it later
-			rPiCWIImage = newRPiCWIBuild
+			// Return the image so we can deploy it later
+			return newRPiCWIBuild
 		}
 	}
 }
