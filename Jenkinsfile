@@ -52,10 +52,12 @@ def doRPiCWIBuild() {
 		// TODO: Bundle release notes + update Wiki
 
 		dir('ha-rpi-cwi') {
-			// Build the docker image
-			def newRPiCWIBuild = docker.build "rcjcooke/ha-rpi-cwi:${env.BUILD_TAG}"
-			// Publish the image to the docker artefact repository
-			newRPiCWIBuild.push 'latest'
+			docker.withRegistry('https://hub.docker.com/', 'docker-hub-login') {
+				// Build the docker image
+				def newRPiCWIBuild = docker.build "rcjcooke/ha-rpi-cwi:${env.BUILD_TAG}"
+				// Publish the image to the docker artefact repository
+				newRPiCWIBuild.push 'latest'
+			}
 		}
 
 	}
