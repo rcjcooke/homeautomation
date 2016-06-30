@@ -64,7 +64,7 @@ def doRPiCWIDeploy(Object dockerImage, String deployHost) {
 	node('rasbpi') {
 		// TODO: Pull these out to config management on a per server basis?
 		withEnv(["DOCKER_HOST=${deployHost}",'DOCKER_TLS_VERIFY=0']) {
-			dockerImage.run('-d -p 80:80')
+			dockerImage.run('-p 80:80')
 		}
 	}
 }
