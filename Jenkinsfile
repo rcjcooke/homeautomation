@@ -1,7 +1,6 @@
 #!/usr/bin/env groovy
 
-// Random number generator used for generating directory names
-Random randomGen = new Random();
+int dirNum = 0
 
 // Define some servers and config - TODO: pull these out to something in future (Chef?)
 String garageDockerHost = 'tcp://garagepi.local:2376'
@@ -108,7 +107,7 @@ def doRPiGPIODeviceDockerDeploy(Object dockerImage) {
 def checkoutBuildAndPushDockerHubImageFromGitOnNode(String nodeName, String jenkinsGitCredentialsId, String gitUrl, String dockerCredentialsId, String dockerTag) {
 	node(nodeName) {
 		// Check out docker image build script
-		def buildDir = getRandomDirName();
+		def buildDir = getNextDirName();
 		dir(buildDir) {
 			git credentialsId: jenkinsGitCredentialsId, url: gitUrl
 			// Build the docker image
@@ -133,7 +132,7 @@ def buildAndPushDockerFileToDockerHub(String tag, String dockerCredentialsId) {
 	return newImage
 }
 
-def getRandomDirName() {
-	def dirName = env.BUILD_TAG + '_' + (Math.abs(randomGen.nextInt() % 10000) + 1)
+def getNextDirName() {
+	def dirName = env.BUILD_TAG + '_' + (dirNum++);
 	return dirName
 }
