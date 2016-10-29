@@ -7,6 +7,10 @@ Random randomGen = new Random();
 String garageDockerHost = 'tcp://garagepi.local:2376'
 Object rPiCWIImage = null
 Object rPiHCImage = null
+Object rPiGDCImage = null
+
+String jenkinsGitCredentialsId = 'f3266c33-5ce6-45b8-8fdc-48d38dbfa5d6'
+String dockerCredentialsId = 'docker-hub-login'
 
 /************/
 /* Pipeline */
@@ -18,11 +22,10 @@ stage 'build'
 // Build what we can in parallel to optimise build time
 parallel(
 	rPiCWIBuild: {
-		rPiCWIImage = doRPiCWIBuild('f3266c33-5ce6-45b8-8fdc-48d38dbfa5d6', 'docker-hub-login')
+		rPiCWIImage = doRPiCWIBuild()
 	},
-	rPiHCBuild: {
-		rPiHCImage = doRPiHCBuild('f3266c33-5ce6-45b8-8fdc-48d38dbfa5d6', 'docker-hub-login')
-	},
+	rPiHCBuild: { rPiHCImage = doRPiDockerImageBuild('ha-rpi-hc') },
+	rPiGDCBuild: { rPiGDCImage = doRPiDockerImageBuild('ha-rpi-gdc') },
 	failFast: false)
 
 /* auto-test: Provision, Deploy, Automated component, service, integration, acceptance testing */
@@ -39,9 +42,8 @@ parallel(
 	rPiCWIDeploy: {
 		doRPiCWIDeploy(rPiCWIImage, garageDockerHost)
 	},
-	rPiHCDeploy: {
-		doRPiHCDeploy(rPiCWIImage, garageDockerHost)
-	},
+	rPiHCDeploy: { doRPiGPIODeviceDockerDeploy(rPiHCImage) },
+	rPiGDCDeploy: { doRPiGPIODeviceDockerDeploy(rPiGDCImage) },
 	failFast: false)
 
 /*****************/
@@ -83,20 +85,19 @@ def doRPiCWIDeploy(Object dockerImage, String deployHost) {
 	}
 }
 
-// Raspberry Pi Heater Controller Deployer
-def doRPiHCBuild(String jenkinsGitCredentialsId, String dockerCredentialsId) {
+def doRPiDockerImageBuild(String imageName) {
 	return checkoutBuildAndPushDockerHubImageFromGitOnNode(
-		'rasbpi',
+		'raspbi',
 		jenkinsGitCredentialsId,
-		'https://github.com/rcjcooke/ha-rpi-hc.git',
-		"rcjcooke/ha-rpi-cwi:${env.BUILD_TAG}",
-		dockerCredentialsId)
+		'https://github.com/rcjcooke/' + imageName + '.git',
+		dockerCredentialsId,
+		'rcjcooke/' + imageName + ':' + env.BUILD_TAG,
+		)
 }
 
-// Raspberry Pi Heater Controller Deployer
-def doRPiHCDeploy(Object dockerImage, String deployHost) {
+// General docker image Raspberry Pi Docker image deployer
+def doRPiGPIODeviceDockerDeploy(Object dockerImage) {
 	node('rasbpi') {
-		// TODO: Pull these out to config management on a per server basis?
 		dockerImage.run('--device /dev/ttyAMA0:/dev/ttyAMA0 --device /dev/mem:/dev/mem --privileged')
 	}
 }
@@ -133,5 +134,6 @@ def buildAndPushDockerFileToDockerHub(String tag, String dockerCredentialsId) {
 }
 
 def getRandomDirName() {
-	return "${env.BUILD_TAG}" + (Math.abs(randomGen.nextInt() % 10000) + 1)
+	def dirName = env.BUILD_TAG + '_' + (Math.abs(randomGen.nextInt() % 10000) + 1)
+	return dirName
 }
