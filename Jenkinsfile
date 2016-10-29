@@ -133,5 +133,5 @@ def buildAndPushDockerFileToDockerHub(String tag, String dockerCredentialsId) {
 }
 
 def getRandomDirName() {
-	return '' + (Math.abs(randomGen.nextInt() % 10000) + 1)
+	return "${env.BUILD_TAG}" + (Math.abs(randomGen.nextInt() % 10000) + 1)
 }
