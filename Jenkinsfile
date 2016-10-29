@@ -50,7 +50,7 @@ parallel(
 /*****************/
 
 // Raspberry Pi Cam Web Interface builder
-def doRPiCWIBuild(String jenkinsGitCredentialsId, String dockerCredentialsId) {
+def doRPiCWIBuild() {
 	node('rasbpi') {
 		// Note: This has to be done on the Rasberry Pi build slave
 
