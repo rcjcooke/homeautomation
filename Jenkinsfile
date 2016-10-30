@@ -1,7 +1,5 @@
 #!/usr/bin/env groovy
 
-int dirNum = 0
-
 // Define some servers and config - TODO: pull these out to something in future (Chef?)
 String garageDockerHost = 'tcp://garagepi.local:2376'
 Object rPiCWIImage = null
@@ -86,6 +84,7 @@ def doRPiCWIDeploy(Object dockerImage, String deployHost) {
 
 def doRPiDockerImageBuild(String imageName, String jenkinsGitCredentialsId, String dockerCredentialsId) {
 	return checkoutBuildAndPushDockerHubImageFromGitOnNode(
+		'imageName',
 		'rasbpi',
 		jenkinsGitCredentialsId,
 		'https://github.com/rcjcooke/' + imageName + '.git',
@@ -104,11 +103,10 @@ def doRPiGPIODeviceDockerDeploy(Object dockerImage) {
 /*********************/
 /* Utility Functions */
 /*********************/
-def checkoutBuildAndPushDockerHubImageFromGitOnNode(String nodeName, String jenkinsGitCredentialsId, String gitUrl, String dockerCredentialsId, String dockerTag) {
+def checkoutBuildAndPushDockerHubImageFromGitOnNode(String buildDirName, String nodeName, String jenkinsGitCredentialsId, String gitUrl, String dockerCredentialsId, String dockerTag) {
 	node(nodeName) {
 		// Check out docker image build script
-		def buildDir = getNextDirName();
-		dir(buildDir) {
+		dir(buildDirName) {
 			git credentialsId: jenkinsGitCredentialsId, url: gitUrl
 			// Build the docker image
 			def newBuild = buildAndPushDockerFileToDockerHub(dockerTag, dockerCredentialsId)
@@ -130,9 +128,4 @@ def buildAndPushDockerFileToDockerHub(String tag, String dockerCredentialsId) {
 	}
 	// Return the image so we can deploy it later
 	return newImage
-}
-
-def getNextDirName() {
-	def dirName = env.BUILD_TAG + '_' + (dirNum++);
-	return dirName
 }
