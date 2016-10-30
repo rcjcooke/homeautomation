@@ -25,7 +25,7 @@ parallel(
 	},
 	rPiHCBuild: { rPiHCImage = doRPiDockerImageBuild('ha-rpi-hc', jenkinsGitCredentialsId, dockerCredentialsId) },
 	rPiGDCBuild: { rPiGDCImage = doRPiDockerImageBuild('ha-rpi-gdc', jenkinsGitCredentialsId, dockerCredentialsId) },
-	failFast: false)
+	failFast: true)
 
 /* auto-test: Provision, Deploy, Automated component, service, integration, acceptance testing */
 stage 'auto-test'
