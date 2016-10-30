@@ -86,7 +86,7 @@ def doRPiCWIDeploy(Object dockerImage, String deployHost) {
 
 def doRPiDockerImageBuild(String imageName, String jenkinsGitCredentialsId, String dockerCredentialsId) {
 	return checkoutBuildAndPushDockerHubImageFromGitOnNode(
-		'raspbi',
+		'rasbpi',
 		jenkinsGitCredentialsId,
 		'https://github.com/rcjcooke/' + imageName + '.git',
 		dockerCredentialsId,
