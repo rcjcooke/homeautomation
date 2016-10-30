@@ -21,10 +21,10 @@ stage 'build'
 // Build what we can in parallel to optimise build time
 parallel(
 	rPiCWIBuild: {
-		rPiCWIImage = doRPiCWIBuild()
+		rPiCWIImage = doRPiCWIBuild(jenkinsGitCredentialsId, dockerCredentialsId)
 	},
-	rPiHCBuild: { rPiHCImage = doRPiDockerImageBuild('ha-rpi-hc') },
-	rPiGDCBuild: { rPiGDCImage = doRPiDockerImageBuild('ha-rpi-gdc') },
+	rPiHCBuild: { rPiHCImage = doRPiDockerImageBuild('ha-rpi-hc', jenkinsGitCredentialsId, dockerCredentialsId) },
+	rPiGDCBuild: { rPiGDCImage = doRPiDockerImageBuild('ha-rpi-gdc', jenkinsGitCredentialsId, dockerCredentialsId) },
 	failFast: false)
 
 /* auto-test: Provision, Deploy, Automated component, service, integration, acceptance testing */
@@ -50,7 +50,7 @@ parallel(
 /*****************/
 
 // Raspberry Pi Cam Web Interface builder
-def doRPiCWIBuild() {
+def doRPiCWIBuild(String jenkinsGitCredentialsId, String dockerCredentialsId) {
 	node('rasbpi') {
 		// Note: This has to be done on the Rasberry Pi build slave
 
@@ -84,7 +84,7 @@ def doRPiCWIDeploy(Object dockerImage, String deployHost) {
 	}
 }
 
-def doRPiDockerImageBuild(String imageName) {
+def doRPiDockerImageBuild(String imageName, String jenkinsGitCredentialsId, String dockerCredentialsId) {
 	return checkoutBuildAndPushDockerHubImageFromGitOnNode(
 		'raspbi',
 		jenkinsGitCredentialsId,
